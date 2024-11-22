@@ -13,6 +13,7 @@ namespace CompiladorORM
         public int Linha { get; set; }
         public int OrdemLinha { get; set; }
         public int OrdemGeral { get; set; }
+        public bool Status { get; set; }
 
     }
 }

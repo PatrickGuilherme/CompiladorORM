@@ -9,75 +9,158 @@ namespace CompiladorORM
     public class Filtros
     {
 
-
-        //Espaços em branco duplicados são removidos
-        public void Filtro_EspacosEmBranco(List<Caracter> lista_original)
+        public void Filtro_Comentario(List<Caracter> lista_original)
         {
             lista_original = lista_original.OrderBy(x => x.OrdemGeral).ToList();
-            List<Caracter> itensEspacoBranco = new List<Caracter>();
-            int qtdEspacoBranco = 0;
-            
-            
-            int comentarioLinha=0;
-            int comentarioBloco=0;
-            int linhaComentada = -1;
+            bool dentroComentario = false; // Flag para indicar se está dentro do comentário
 
-            foreach (var caracter in lista_original) 
+            for (int i = 0; i < lista_original.Count; i++)
             {
-                if(caracter.CodigoASC == 42){//Barra (/) 
-                    comentarioLinha++;
-                    comentarioBloco++;
-                }
-                
-                //Comentario bloco (inicio)
-                else if(caracter.CodigoASC == 47  && (comentarioLinha == 1 || comentarioBloco == 1)){
-                    comentarioLinha = 0;
-                    comentarioBloco++;
-                }
-                //Comentario de linha (inicio)
-                else if(caracter.CodigoASC == 42  && (comentarioLinha == 1 || comentarioBloco == 1)){
-                    comentarioBloco = 0;
-                    comentarioLinha++;
-                    linhaComentada = caracter.Linha;
-                }else{
-                    comentarioBloco = 0;
-                    comentarioLinha = 0;
-                }
+                var caracterAtual = lista_original[i];
 
-                if(comentarioLinha == 2){
-                    
-                else if(comentarioBloco > 1 || comentarioLinha > 1){
-                    
-                }
-                    
-
-                
-                if (caracter.CodigoASC == 32)
+                // Verifica início de comentário de bloco /* */
+                if (!dentroComentario &&
+                    i < lista_original.Count - 1 &&
+                    caracterAtual.NomeCaracter == '/' &&
+                    lista_original[i + 1].NomeCaracter == '*')
                 {
-                    qtdEspacoBranco++;
-                    if(qtdEspacoBranco > 1)
-                    {
-                        itensEspacoBranco.Add(caracter);
-                    }
+                    dentroComentario = true;
+                    caracterAtual.Status = false;           // Inativa o '/'
+                    lista_original[i + 1].Status = false;   // Inativa o '*'
+                    i++; // Avança o índice para pular o próximo
+                    continue;
                 }
-                else
-                {
-                    if (qtdEspacoBranco >= 2) 
-                    {
-                        foreach(var i  in itensEspacoBranco)
-                        {
-                            lista_original.Remove(i);
-                        }
-                    }
-                    else
-                    {
-                        itensEspacoBranco.RemoveAll(x => x.OrdemGeral >= 0);
 
+                // Verifica fim de comentário de bloco */
+                if (dentroComentario && i < lista_original.Count - 1 &&
+                    caracterAtual.NomeCaracter == '*' &&
+                    lista_original[i + 1].NomeCaracter == '/')
+                {
+                    caracterAtual.Status = false;           // Inativa o '*'
+                    lista_original[i + 1].Status = false;   // Inativa o '/'
+                    dentroComentario = false;
+                    i++; // Avança o índice para pular o próximo
+                    continue;
+                }
+
+                // Inativa caracteres dentro do comentário de bloco
+                if (dentroComentario)
+                {
+                    caracterAtual.Status = false;
+                    continue;
+                }
+
+                // Verifica início de comentário de linha //
+                if (i < lista_original.Count - 1 &&
+                    caracterAtual.NomeCaracter == '/' &&
+                    lista_original[i + 1].NomeCaracter == '/')
+                {
+                    caracterAtual.Status = false;           // Inativa a primeira '/'
+                    lista_original[i + 1].Status = false;   // Inativa a segunda '/'
+                    int linhaAtual = caracterAtual.Linha;
+
+                    // Desativa todos os caracteres até o final da linha
+                    while (i + 1 < lista_original.Count && lista_original[i + 1].Linha == linhaAtual)
+                    {
+                        i++;
+                        lista_original[i].Status = false;
                     }
-                    qtdEspacoBranco = 0;
+                    continue;
                 }
             }
+
         }
 
+        public string Filtro_AtomoPalavrasReservada(string textofonte)
+        {
+            TabelaSimbolosReservados tabelaSimbolosReservados = new TabelaSimbolosReservados();
+            string codigoSimboloReservado = string.Empty;
+            foreach(var simbReservado in tabelaSimbolosReservados.Lista_tabelaSimbolosReservados)
+            {
+                if (simbReservado.Equals(textofonte.ToLower()))
+                {
+                    codigoSimboloReservado = simbReservado.Codigo;
+                }
+            }
+            return codigoSimboloReservado;
+        }
+
+        public void Filtro_PalavraInvalidas(List<Caracter> lista_original)
+        {
+            // Lista contendo todos os símbolos
+            List<char> simbolos = new List<char>
+            {
+                ';',
+                ':',
+                '[',
+                ']',
+                ',',
+                '(',
+                ')',
+                '?',
+                '{',
+                '}',
+                ':',
+                '=',
+                '<',
+                '>',
+                '!',
+                '#',
+                '-',
+                '+',
+                '*',
+                '/',
+                '%',
+                '_',
+                '\'',
+                '$',
+                '_',
+                '.',
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f',
+                'g',
+                'h',
+                'i',
+                'k',
+                'l',
+                'm',
+                'n',
+                'o',
+                'p',
+                'q',
+                'r',
+                's',
+                't',
+                'u',
+                'v',
+                'w',
+                'x',
+                'y',
+                'z',
+                '1',
+                '2',
+                '3',
+                '4',
+                '5',
+                '6',
+                '7',
+                '8',
+                '9',
+                '0',
+                '\"',
+                ' ',
+            };
+
+            foreach (var termo in lista_original)
+            {
+                char? encontrou = simbolos.Find(x => x.Equals(char.ToLower(termo.NomeCaracter)));
+                if (encontrou == null) { termo.Status = false; } else { termo.Status = true; }
+            }
+
+        }
     }
 }

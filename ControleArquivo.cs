@@ -142,6 +142,7 @@ namespace CompiladorORM
                             caracter.OrdemLinha = i;
                             caracter.OrdemGeral = ordemGeral;
                             caracter.Linha = NumLinha;
+                            caracter.Status = true;
                             ordemGeral++;
                             lista_caracter.Add(caracter);
                         }

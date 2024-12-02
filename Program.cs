@@ -1,7 +1,11 @@
 ﻿using CompiladorORM;
+using CompiladorORM.Atomos;
+using CompiladorORM.TabelaSimbolos;
 using System;
 using System.IO;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 public class Program
 {
@@ -10,7 +14,6 @@ public class Program
         
         try
         {
-
             Console.Clear();
             Console.WriteLine("====================================");
             Console.WriteLine("          STATIC CHECKER            ");
@@ -30,24 +33,49 @@ public class Program
             controleArquivo.SetDiretorio(caminhoDoUsuario);
             var lista_caracteres = controleArquivo.LerArquivo();
 
-            //RELATORIO LEX
-            controleArquivo.GerarRelatorioLex();
+
 
             //Filtro Termos Inválidos (primeiro nivel)
             Filtros filtros = new Filtros();
             filtros.Filtro_PalavraInvalidas(lista_caracteres);
-            PrintListaCaracteres(lista_caracteres);
-
-            //Filtro de comentario (segundo nivel)
-            filtros.Filtro_Comentario(lista_caracteres.Where(x => x.Status).ToList());
-            PrintListaCaracteres(lista_caracteres);
-
             lista_caracteres = lista_caracteres.Where(x => x.Status).ToList();
-            PrintListaCaracteres(lista_caracteres);
+            filtros.Filtro_Comentario(lista_caracteres.Where(x => x.Status).ToList());
+            lista_caracteres = lista_caracteres.Where(x => x.Status).ToList();
 
+            //Tabela de simbolos
+            List<ElementoTabelaSimbolo> tabelaSimbolos = new List<ElementoTabelaSimbolo>();
 
+            #region Atomo ConsCadeia
+            AtomoConsCadeia processor = new AtomoConsCadeia();
+            foreach (var caracter in lista_caracteres) // lista_original é a lista de caracteres que será processada
+            {
+                processor.ProcessarElemento(caracter); // Processa cada caractere
+            }
+            // Acessar as cadeias encontradas
+            foreach (var cadeia in processor.lista_Atomo_ConsCadeia)
+            {
+                string atomo = string.Empty;
+                List<int> lista = new List<int>();
+                foreach (var caractere in cadeia)
+                {
+                    atomo += caractere.NomeCaracter;
+                    lista.Add(caractere.Linha);
+                }
+                 
+                ElementoTabelaSimbolo elemento = new ElementoTabelaSimbolo();
+                elemento.QtdCharAntesTrunc = atomo.Count();    
+                elemento.QtdCharDepoisTrunc = atomo.Count();
+                elemento.Lexeme = atomo;
+                elemento.TipoSimb = "consCadeia";
+                elemento.Codigo = "C01";
+                elemento.Entrada = 1;
+                elemento.Linhas = lista.Distinct().ToList();
+                tabelaSimbolos.Add(elemento);
+            }
+            #endregion
 
-
+            //RELATORIO LEX
+            controleArquivo.GerarRelatorioTab(tabelaSimbolos);
         }
         catch (Exception ex)
         {
@@ -59,6 +87,8 @@ public class Program
         }
 
     }
+
+   
 
     private static void PrintListaCaracteres(List<Caracter> lista_caracteres)
     {

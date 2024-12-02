@@ -71,20 +71,6 @@ namespace CompiladorORM
 
         }
 
-        public string Filtro_AtomoPalavrasReservada(string textofonte)
-        {
-            TabelaSimbolosReservados tabelaSimbolosReservados = new TabelaSimbolosReservados();
-            string codigoSimboloReservado = string.Empty;
-            foreach(var simbReservado in tabelaSimbolosReservados.Lista_tabelaSimbolosReservados)
-            {
-                if (simbReservado.Equals(textofonte.ToLower()))
-                {
-                    codigoSimboloReservado = simbReservado.Codigo;
-                }
-            }
-            return codigoSimboloReservado;
-        }
-
         public void Filtro_PalavraInvalidas(List<Caracter> lista_original)
         {
             // Lista contendo todos os símbolos

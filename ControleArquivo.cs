@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CompiladorORM.TabelaSimbolos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -11,7 +12,6 @@ namespace CompiladorORM
     {
         public string NomeArquivo { get; set; }
         public string NomeArquivoExt { get; set; }
-
         public string DiretorioExt { get; set; }
         public string Diretorio { get; set; }
 
@@ -118,7 +118,63 @@ namespace CompiladorORM
                 Console.WriteLine($"Ocorreu um erro ao criar ou escrever no arquivo: {e.Message}");
             }
         }
-        
+        public void GerarRelatorioTab(List<ElementoTabelaSimbolo> tabelaSimbolos)
+        {
+            string nomeArquivoExt = NomeArquivo;
+            string DiretorioRaiz = this.ObterDiretorioRaizProjeto();
+
+            // Caminho do arquivo
+            string caminhoDoArquivo = DiretorioRaiz + "\\" + nomeArquivoExt + ".LEX";
+
+            // Texto a ser escrito no arquivo, com quebras de linha
+            string textoParaEscrever = "Código da Equipe: EQ01" + "\n" +
+                                       "Componentes:" + "\n" +
+                                       "\tPatrick Guilherme da Silva; patrick.silva@aln.senaicimatec.edu.br; (71) 99945-8148" + "\n" +
+                                       "\tGuilherme Garcia Oliveira; guilherme.g.oliveira@aln.senaicimatec.edu.br; (71) 98134-0749" + "\n" +
+                                       "\tVictor Lima Conceição; victor.Conceicao@aln.senaicimatec.edu.br; (71) 98600-1311" + "\n" +
+                                       "\tIgor Cunha Lobato Souza; igor@aln.senaicimatec.edu.br; (71) 99147-4206" + "\n\n";
+
+            textoParaEscrever += "RELATÓRIO DA TABELA DE SIMBOLOS. Texto fonte analisado: " + this.NomeArquivo + "\n";
+            textoParaEscrever += "---------------------------------------------------------------------------------------------------------" + "\n";
+            
+            foreach (var elemento in tabelaSimbolos) 
+            {
+                textoParaEscrever += $"Entrada: {elemento.Entrada}, Codigo: {elemento.Codigo}, Lexeme: {elemento.Lexeme} \n";
+                textoParaEscrever += $"QtdCharAntesTrunc:  {elemento.QtdCharAntesTrunc}, QtdCharDepoisTrunc:  {elemento.QtdCharDepoisTrunc} \n";
+                textoParaEscrever += $"TipoSimb: {elemento.TipoSimb}, Linhas [ ";
+                foreach(var e in elemento.Linhas)
+                {
+                    textoParaEscrever += $"{e},";
+                }
+                textoParaEscrever += "]\n";
+                textoParaEscrever += "---------------------------------------------------------------------------------------------------------\n";
+            } 
+
+            try
+            {
+
+                int i = 1;
+                while (File.Exists(caminhoDoArquivo))
+                {
+                    caminhoDoArquivo = DiretorioRaiz + "\\" + nomeArquivoExt + i + ".LEX";
+                    i++;
+                }
+
+                // Escrever o texto no arquivo (irá sobrescrever se o arquivo já existir)
+                File.WriteAllText(caminhoDoArquivo, textoParaEscrever);
+
+
+
+
+                Console.WriteLine("Texto escrito no arquivo com sucesso!");
+            }
+            catch (Exception e)
+            {
+                // Captura de erro
+                Console.WriteLine($"Ocorreu um erro ao criar ou escrever no arquivo: {e.Message}");
+            }
+        }
+
         public List<Caracter> LerArquivo()
         {
             try

@@ -11,6 +11,5 @@ namespace CompiladorORM
         public string Lexeme { get; set; }
         public int Codigo { get; set; }
         public int IndiceTabelSimbolos { get; set; }
-        public int Linha { get; set; }
-    }
+        public int Linha { get; set; }    }
 }

@@ -17,7 +17,9 @@ namespace CompiladorORM
             this.Lista_tabelaSimbolosReservados = new List<TabelaSimbolosReservados>();
             ASimbolos();
             BSimbolos();
+            CSimbolos();
         }
+
 
         private void ASimbolos()
         {
@@ -265,9 +267,44 @@ namespace CompiladorORM
             tabelaSimbolos.Codigo = "B22";
             tabelaSimbolos.Atomo = ">=";
             this.Lista_tabelaSimbolosReservados.Add(tabelaSimbolos);
-
-
         }
 
+        private void CSimbolos()
+        {
+            TabelaSimbolosReservados tabelaSimbolos = new TabelaSimbolosReservados();
+            tabelaSimbolos.Codigo = "C01";
+            tabelaSimbolos.Atomo = "consCadeia";
+            this.Lista_tabelaSimbolosReservados.Add(tabelaSimbolos);
+
+            tabelaSimbolos = new TabelaSimbolosReservados();
+            tabelaSimbolos.Codigo = "C02";
+            tabelaSimbolos.Atomo = "consCaracter";
+            this.Lista_tabelaSimbolosReservados.Add(tabelaSimbolos);
+
+            tabelaSimbolos = new TabelaSimbolosReservados();
+            tabelaSimbolos.Codigo = "C03";
+            tabelaSimbolos.Atomo = "consInteiro";
+            this.Lista_tabelaSimbolosReservados.Add(tabelaSimbolos);
+
+            tabelaSimbolos = new TabelaSimbolosReservados();
+            tabelaSimbolos.Codigo = "C04";
+            tabelaSimbolos.Atomo = "consReal";
+            this.Lista_tabelaSimbolosReservados.Add(tabelaSimbolos);
+
+            tabelaSimbolos = new TabelaSimbolosReservados();
+            tabelaSimbolos.Codigo = "C05";
+            tabelaSimbolos.Atomo = "nomFuncao";
+            this.Lista_tabelaSimbolosReservados.Add(tabelaSimbolos);
+
+            tabelaSimbolos = new TabelaSimbolosReservados();
+            tabelaSimbolos.Codigo = "C06";
+            tabelaSimbolos.Atomo = "nomPrograma";
+            this.Lista_tabelaSimbolosReservados.Add(tabelaSimbolos);
+
+            tabelaSimbolos = new TabelaSimbolosReservados();
+            tabelaSimbolos.Codigo = "C07";
+            tabelaSimbolos.Atomo = "variavel";
+            this.Lista_tabelaSimbolosReservados.Add(tabelaSimbolos);
+        }
     }
 }

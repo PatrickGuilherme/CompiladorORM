@@ -6,4 +6,4 @@ Componentes:
 	Igor Cunha Lobato Souza; igor@aln.senaicimatec.edu.br; (71) 99147-4206
 
 RELATÓRIO DE ANÁLISE LÉXICA. Texto fonte analisado: teste
------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------

@@ -38,7 +38,7 @@ public class Program
                 Console.Write("[Digite o caminho do arquivo (use barra invertida duas vezes \\\\)] ");
                 caminhoDoUsuario = Console.ReadLine();
             }
-            
+
             //Abrir diretorio
             ControleArquivo controleArquivo = new ControleArquivo(nomeArquivo);
             controleArquivo.SetDiretorio(caminhoDoUsuario);
@@ -55,9 +55,13 @@ public class Program
 
             //Tabela de simbolos
             AtomoConsCadeia ConsCadeia = new AtomoConsCadeia();
+            string consCadeiaAtual = ""; 
             foreach (var caracter in lista_caractere) 
             {
-                ConsCadeia.ProcessarElemento(caracter);
+                consCadeiaAtual += caracter.NomeCaracter;
+
+                ConsCadeia.IniciarCadeiaAtual(consCadeiaAtual);
+                consCadeiaAtual = ConsCadeia.ProcessarElemento(caracter);
             }
 
 

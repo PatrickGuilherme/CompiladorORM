@@ -25,6 +25,12 @@ namespace CompiladorORM.Atomos
             '.'  // Ponto
         };
 
+
+        public void IniciarCadeiaAtual(string caracter)
+        {
+            this.consCadeiaAtual = caracter;
+        }
+
         // Função para processar um único elemento (caractere)
         public string ProcessarElemento(Caracter caracterAtual)
         {

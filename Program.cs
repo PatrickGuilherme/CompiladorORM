@@ -9,6 +9,9 @@ using System.Text.RegularExpressions;
 
 public class Program
 {
+    private static List<Caracter> lista_caractere = new List<Caracter>();
+    private static List<ElementoTabelaSimbolo> tabelaSimbolos = new List<ElementoTabelaSimbolo>();
+
     public static void Main(string[] args)
     {
         
@@ -17,62 +20,46 @@ public class Program
             Console.Clear();
             Console.WriteLine("====================================");
             Console.WriteLine("          STATIC CHECKER            ");
-            Console.WriteLine("====================================");
+            Console.WriteLine("====================================");//id == entrada
             
             //Ler entrada
             Console.Write("[Digite o nome do arquivo] ");
             string nomeArquivo = Console.ReadLine();
             Console.WriteLine(">>> " + nomeArquivo + " <<<");
-            
+
+            //Informar caminho para o arquivo?
+            Console.Write("[Deseja informar um caminho para o texto fonte(s/n)?] ");
+            string? infCaminho = Console.ReadLine();
+            string? caminhoDoUsuario = string.Empty;
+
             //Caminho Arquivo
-            Console.Write("[Digite o caminho do arquivo (use barra invertida duas vezes \\\\)] ");
-            string? caminhoDoUsuario = Console.ReadLine();
+            if (infCaminho.ToLower() != "s") 
+            {
+                Console.Write("[Digite o caminho do arquivo (use barra invertida duas vezes \\\\)] ");
+                caminhoDoUsuario = Console.ReadLine();
+            }
             
             //Abrir diretorio
             ControleArquivo controleArquivo = new ControleArquivo(nomeArquivo);
             controleArquivo.SetDiretorio(caminhoDoUsuario);
-            var lista_caracteres = controleArquivo.LerArquivo();
+            lista_caractere = controleArquivo.LerArquivo();
 
-
-
-            //Filtro Termos Inválidos (primeiro nivel)
+            //Filtro Termos Inválidos
             Filtros filtros = new Filtros();
-            filtros.Filtro_PalavraInvalidas(lista_caracteres);
-            lista_caracteres = lista_caracteres.Where(x => x.Status).ToList();
-            filtros.Filtro_Comentario(lista_caracteres.Where(x => x.Status).ToList());
-            lista_caracteres = lista_caracteres.Where(x => x.Status).ToList();
+            filtros.Filtro_PalavraInvalidas(lista_caractere);
+            lista_caractere = lista_caractere.Where(x => x.Status).ToList();
+
+            //Filtro Comentários
+            filtros.Filtro_Comentario(lista_caractere.Where(x => x.Status).ToList());
+            lista_caractere = lista_caractere.Where(x => x.Status).ToList();
 
             //Tabela de simbolos
-            List<ElementoTabelaSimbolo> tabelaSimbolos = new List<ElementoTabelaSimbolo>();
+            AtomoConsCadeia ConsCadeia = new AtomoConsCadeia();
+            foreach (var caracter in lista_caractere) 
+            {
+                ConsCadeia.ProcessarElemento(caracter);
+            }
 
-            #region Atomo ConsCadeia
-            AtomoConsCadeia processor = new AtomoConsCadeia();
-            foreach (var caracter in lista_caracteres) // lista_original é a lista de caracteres que será processada
-            {
-                processor.ProcessarElemento(caracter); // Processa cada caractere
-            }
-            // Acessar as cadeias encontradas
-            foreach (var cadeia in processor.lista_Atomo_ConsCadeia)
-            {
-                string atomo = string.Empty;
-                List<int> lista = new List<int>();
-                foreach (var caractere in cadeia)
-                {
-                    atomo += caractere.NomeCaracter;
-                    lista.Add(caractere.Linha);
-                }
-                 
-                ElementoTabelaSimbolo elemento = new ElementoTabelaSimbolo();
-                elemento.QtdCharAntesTrunc = atomo.Count();    
-                elemento.QtdCharDepoisTrunc = atomo.Count();
-                elemento.Lexeme = atomo;
-                elemento.TipoSimb = "consCadeia";
-                elemento.Codigo = "C01";
-                elemento.Entrada = 1;
-                elemento.Linhas = lista.Distinct().ToList();
-                tabelaSimbolos.Add(elemento);
-            }
-            #endregion
 
             //RELATORIO LEX
             controleArquivo.GerarRelatorioTab(tabelaSimbolos);
@@ -88,31 +75,31 @@ public class Program
 
     }
 
-   
-
-    private static void PrintListaCaracteres(List<Caracter> lista_caracteres)
+    public void CarregarTabelaSimbolos_ConsCadeia(AtomoConsCadeia ConsCadeia)
     {
-        Console.WriteLine("====================================");
-        Console.WriteLine("          LISTA                     ");
-        Console.WriteLine("====================================");
-        Console.WriteLine("{0,-15} {1,-10} {2,-10} {3,-15} {4,-15} {5,-10}",
-                    "NomeCaracter",
-                    "CodigoASC",
-                    "Linha",
-                    "OrdemLinha",
-                    "OrdemGeral",
-                    "Status");
-        //Exibição lista de caracteres
-        foreach (var caracter in lista_caracteres)
+        #region Atomo ConsCadeia
+        // Acessar as cadeias encontradas
+        foreach (var cadeia in ConsCadeia.lista_Atomo_ConsCadeia)
         {
-          
-            Console.WriteLine("{0,-15} {1,-10} {2,-10} {3,-15} {4,-15} {5,-10}",
-                caracter.NomeCaracter,
-                caracter.CodigoASC,
-                caracter.Linha,
-                caracter.OrdemLinha,
-                caracter.OrdemGeral,
-                caracter.Status);
+            string atomo = string.Empty;
+            List<int> lista = new List<int>();
+            foreach (var caractere in cadeia)
+            {
+                atomo += caractere.NomeCaracter;
+                lista.Add(caractere.Linha);
+            }
+
+            ElementoTabelaSimbolo elemento = new ElementoTabelaSimbolo();
+            elemento.QtdCharAntesTrunc = atomo.Count();
+            elemento.QtdCharDepoisTrunc = atomo.Count();
+            elemento.Lexeme = atomo;
+            elemento.TipoSimb = "consCadeia";
+            elemento.Codigo = "C01";
+            elemento.Entrada = 1;
+            elemento.Linhas = lista.Distinct().ToList();
+            tabelaSimbolos.Add(elemento);
         }
+        #endregion
     }
+
 }
